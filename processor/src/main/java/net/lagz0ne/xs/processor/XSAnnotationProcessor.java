@@ -5,26 +5,18 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
-import net.lagz0ne.xs.annotation.Initializer;
 import net.lagz0ne.xs.annotation.Service;
 
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.Messager;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.tools.Diagnostic;
+import javax.lang.model.element.TypeElement;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.util.List;
 import java.util.Set;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class XSAnnotationProcessor extends BasicAnnotationProcessor {
-
-    private final ProcessingEnvironment env = processingEnv;
-    private final Messager messenger = processingEnv.getMessager();
-    private final Filer filer = processingEnv.getFiler();
 
     @Override protected Iterable<? extends ProcessingStep> initSteps() {
         return Lists.newArrayList(
@@ -50,10 +42,15 @@ public class XSAnnotationProcessor extends BasicAnnotationProcessor {
             elements.forEach(this::processElement);
         }
 
+        /**
+         * Process per class
+         */
         private void processElement(Element element) {
-            List<? extends Element> enclosedElements = element.getEnclosedElements();
-            messenger.printMessage(Diagnostic.Kind.NOTE, enclosedElements.toString());
-
+            try {
+                ResolverWriter.write((TypeElement) element, processingEnv);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -1,6 +1,5 @@
-package net.lagz0ne.xs.annotation.testFiles;
+package net.lagz0ne.xs.annotation;
 
-import net.lagz0ne.xs.annotation.Service;
 import javax.inject.Inject;
 
 @Service

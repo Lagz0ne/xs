@@ -1,1 +1,1 @@
-include ':processor', ':self', ':annotation'
+include ':spi', ':annotation', ':processor', ':self'

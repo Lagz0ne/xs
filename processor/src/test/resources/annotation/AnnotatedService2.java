@@ -1,4 +1,4 @@
-package net.lagz0ne.xs.annotation.testFiles;
+package annotation;
 
 import net.lagz0ne.xs.annotation.Service;
 
