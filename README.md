@@ -15,7 +15,7 @@ As I discovered RxJava, I realized that Rx itself can cover most problems of bui
 ## Tasks
 
 - [x] Generate constructable class
-- [ ] Integrate that with Annotation processor
+- [x] Integrate that with Annotation processor
 - [ ] Integrate generated classes with ServiceLoader
 - [ ] Network magic to have a proper IoC
 - [ ] Everything should be tested by then
