@@ -8,10 +8,6 @@ dependencies {
     compile "javax.inject:javax.inject:1"
     compile 'io.reactivex:rxjava:1.1.1'
 
-    testApt project(':spi')
-
-    testCompile project(':annotation')
-    testCompile project(':spi')
     testCompile group: 'com.google.testing.compile', name: 'compile-testing', version: '0.9'
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile 'org.assertj:assertj-core:3.3.0'

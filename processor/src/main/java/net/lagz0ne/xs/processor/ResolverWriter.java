@@ -42,7 +42,7 @@ public class ResolverWriter {
                 currentClassName
         );
 
-        TypeSpec helloWorld = TypeSpec.classBuilder(className + "Resolver")
+        TypeSpec resolver = TypeSpec.classBuilder(className + "Resolver")
                 .addSuperinterface(genericResolver)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addField(buildDependencyList(element, processingEnv))
@@ -51,7 +51,7 @@ public class ResolverWriter {
                 .addMethod(buildOnResolved(element))
                 .build();
 
-        JavaFile javaFile = JavaFile.builder(packageName, helloWorld)
+        JavaFile javaFile = JavaFile.builder(packageName, resolver)
                 .indent("\t")
                 .skipJavaLangImports(true)
                 .build();

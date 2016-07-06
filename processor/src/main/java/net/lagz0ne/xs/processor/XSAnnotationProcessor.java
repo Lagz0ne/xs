@@ -1,56 +1,41 @@
 package net.lagz0ne.xs.processor;
 
-import com.google.auto.common.BasicAnnotationProcessor;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import net.lagz0ne.xs.annotation.Service;
 
-import javax.annotation.processing.SupportedSourceVersion;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
+import javax.tools.Diagnostic;
 import java.util.Set;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
-public class XSAnnotationProcessor extends BasicAnnotationProcessor {
+public class XSAnnotationProcessor extends AbstractProcessor {
 
-    @Override protected Iterable<? extends ProcessingStep> initSteps() {
-        return Lists.newArrayList(
-                new GenerateNamedDependencyStep()
-        );
+    @Override public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        processServiceAnnotation(roundEnv.getElementsAnnotatedWith(Service.class));
+        return false;
     }
 
-    private class GenerateNamedDependencyStep implements BasicAnnotationProcessor.ProcessingStep {
+    @Override public Set<String> getSupportedAnnotationTypes() {
+        return Sets.newHashSet(Service.class.getCanonicalName());
+    }
 
-        @SuppressWarnings("all")
-        @Override public Set<? extends Class<? extends Annotation>> annotations() {
-            return Sets.newHashSet(
-                    Service.class
-            );
-        }
+    @Override public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.RELEASE_8;
+    }
 
-        @Override public Set<Element> process(SetMultimap<Class<? extends Annotation>, Element> elementsByAnnotation) {
-            processServiceAnnotation(elementsByAnnotation.get(Service.class));
-            return ImmutableSet.of();
-        }
+    private void processServiceAnnotation(Set<? extends Element> elements) {
+        elements.forEach(this::processElement);
+    }
 
-        private void processServiceAnnotation(Set<Element> elements) {
-            elements.forEach(this::processElement);
-        }
-
-        /**
-         * Process per class
-         */
-        private void processElement(Element element) {
-            try {
-                ResolverWriter.write((TypeElement) element, processingEnv);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void processElement(Element element) {
+        try {
+            ResolverWriter.write((TypeElement) element, processingEnv);
+        } catch (Exception e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+            e.printStackTrace();
         }
     }
 
