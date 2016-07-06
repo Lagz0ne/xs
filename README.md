@@ -19,3 +19,5 @@ As I discovered RxJava, I realized that Rx itself can cover most problems of bui
 - [ ] Integrate generated classes with ServiceLoader
 - [ ] Network magic to have a proper IoC
 - [ ] Everything should be tested by then
+- [ ] Support interfaces and abstract classes
+- [ ] Support Singleton and Prototype
