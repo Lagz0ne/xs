@@ -2,6 +2,8 @@ package net.lagz0ne.xs;
 
 import java.util.LinkedHashMap;
 
+import static javafx.scene.input.KeyCode.T;
+
 public interface Resolver<E> {
 
     /**
@@ -19,4 +21,8 @@ public interface Resolver<E> {
      */
     E onResolved(LinkedHashMap<String, Object> resolvedDependencies) throws Exception;
 
+    @SuppressWarnings("unchecked")
+    default <T> T get(LinkedHashMap<String, Object> resolvedDependencies, String name) {
+        return (T) resolvedDependencies.get(name);
+    }
 }

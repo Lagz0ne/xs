@@ -3,43 +3,74 @@ package net.lagz0ne.xs;
 import rx.Observable;
 import rx.subjects.AsyncSubject;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static rx.Observable.from;
+import static rx.Observable.fromCallable;
 
 public class XSContainer {
 
-    private Map<Class, AsyncSubject<?>> serviceCache = new ConcurrentHashMap<>();
+    private Map<Class, AsyncSubject<Object>> SERVICE_CACHE = new ConcurrentHashMap<>();
     private Map<Class, List<AsyncSubject<?>>> interfaceCache = new ConcurrentHashMap<>();
+    private Map<Class, Object> INSTANCE_CACHE = new ConcurrentHashMap<>();
 
     // User ServiceLoader for this
-    private final Iterable<Resolver> dependenciesList;
+    private final Iterable<Resolver> resolvers;
 
     private XSContainer() {
-        dependenciesList = ServiceLoader.load(Resolver.class);
+        resolvers = ServiceLoader.load(Resolver.class);
         this.init();
     }
 
+    @SuppressWarnings("unchecked")
     private void init() {
-        for (Resolver resolver : dependenciesList) {
-            Collection deps = resolver.dependencies().values();
-
-            Observable<String> keys = Observable
-                    .from(resolver.dependencies().keySet());
-
-            Observable<LinkedHashMap<String, Object>> finalMap = Observable.just(new LinkedHashMap<>());
-
-            Observable<Object> resolveds = Observable.from(deps)
-                    .flatMap(dependency -> serviceCache.get(dependency));
-
-            finalMap.flatMap($finalMap ->
-                    Observable.zip(keys.toList(), resolveds.toList(), ($keys, $resolveds) -> {
-                        for (int i = 0; i < $keys.size(); i++) {
-                            $finalMap.put($keys.get(i), $resolveds.get(i));
+        from(resolvers)
+                .filter(resolver -> resolver.dependencies().isEmpty())
+                .flatMap(resolver -> fromCallable(() -> {
+                            AsyncSubject<Object> instance = AsyncSubject.create();
+                            SERVICE_CACHE.put(resolver.getConcreteClass(), instance);
+                            if (resolver.dependencies().isEmpty()) {
+                                Object actualInstance = resolver.onResolved(new LinkedHashMap<>());
+                                instance.onNext(actualInstance);
+                                instance.onCompleted();
+                                INSTANCE_CACHE.put(resolver.getConcreteClass(), actualInstance);
+                            }
+                            return resolver;
                         }
-                        return Observable.fromCallable(() -> resolver.onResolved($finalMap));
-                    }
-                ));
-        }
+                ))
+        .subscribe();
+
+        from(resolvers)
+                .filter(resolver -> !resolver.dependencies().isEmpty())
+                .flatMap(resolver -> {
+                    Observable<Object> resolvedDependencies = from(resolver.dependencies().values()).flatMap(SERVICE_CACHE::get);
+                    Observable<String> dependencyNames = from(resolver.dependencies().keySet());
+
+                    LinkedHashMap<String, Object> resolvedDependenciesMap = new LinkedHashMap<>();
+                    return Observable.zip(dependencyNames, resolvedDependencies, (name, instance) -> {
+                                resolvedDependenciesMap.put(name, instance);
+                                return resolvedDependenciesMap;
+                            })
+                            .last()
+                            .flatMap(deps -> fromCallable(() -> {
+                                Object instance = resolver.onResolved(deps);
+                                AsyncSubject<Object> instanceLauncher = SERVICE_CACHE.computeIfAbsent(resolver.getConcreteClass(), key -> AsyncSubject.create());
+                                instanceLauncher.onNext(instance);
+                                instanceLauncher.onCompleted();
+                                INSTANCE_CACHE.put(resolver.getConcreteClass(), instance);
+                                return instance;
+                            }));
+                })
+                .subscribe();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getInstance(Class<T> clazz) {
+        return (T) INSTANCE_CACHE.get(clazz);
     }
 
     public static XSContainer initialize() {
