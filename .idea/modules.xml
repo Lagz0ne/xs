@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/annotation/annotation.iml" filepath="$PROJECT_DIR$/.idea/modules/annotation/annotation.iml" group="annotation" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/annotation/annotation_main.iml" filepath="$PROJECT_DIR$/.idea/modules/annotation/annotation_main.iml" group="annotation" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/annotation/annotation_test.iml" filepath="$PROJECT_DIR$/.idea/modules/annotation/annotation_test.iml" group="annotation" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/processor/processor.iml" filepath="$PROJECT_DIR$/.idea/modules/processor/processor.iml" group="processor" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/processor/processor_main.iml" filepath="$PROJECT_DIR$/.idea/modules/processor/processor_main.iml" group="processor" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/processor/processor_test.iml" filepath="$PROJECT_DIR$/.idea/modules/processor/processor_test.iml" group="processor" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/self/self.iml" filepath="$PROJECT_DIR$/.idea/modules/self/self.iml" group="self" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/self/self_main.iml" filepath="$PROJECT_DIR$/.idea/modules/self/self_main.iml" group="self" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/self/self_test.iml" filepath="$PROJECT_DIR$/.idea/modules/self/self_test.iml" group="self" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/spi/spi.iml" filepath="$PROJECT_DIR$/.idea/modules/spi/spi.iml" group="spi" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/spi/spi_main.iml" filepath="$PROJECT_DIR$/.idea/modules/spi/spi_main.iml" group="spi" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/spi/spi_test.iml" filepath="$PROJECT_DIR$/.idea/modules/spi/spi_test.iml" group="spi" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xs.iml" filepath="$PROJECT_DIR$/.idea/modules/xs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xs_main.iml" filepath="$PROJECT_DIR$/.idea/modules/xs_main.iml" group="xs" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/xs_test.iml" filepath="$PROJECT_DIR$/.idea/modules/xs_test.iml" group="xs" />
+    </modules>
+  </component>
+</project>
