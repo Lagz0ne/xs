@@ -10,6 +10,7 @@ public class RandomTest {
     public void random() {
         XSContainer container = XSContainer.initialize();
         Assertions.assertThat(container.getInstance(AnnotatedService1.class)).isNotNull();
+        Assertions.assertThat(container.getInstance(AnnotatedService2.class)).isNotNull();
     }
 
 }

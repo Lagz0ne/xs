@@ -28,7 +28,36 @@ public class XSContainer {
 
     @SuppressWarnings("unchecked")
     private void init() {
-        from(resolvers)
+        Observable.merge(instantiateEmptyDeps(), instantiateRemainingDeps())
+                .subscribe();
+    }
+
+    private Observable instantiateRemainingDeps() {
+        return from(resolvers)
+                .filter(resolver -> !resolver.dependencies().isEmpty())
+                .flatMap(resolver -> {
+                    Observable<Object> resolvedDependencies = from(resolver.dependencies().values()).flatMap(SERVICE_CACHE::get);
+                    Observable<String> dependencyNames = from(resolver.dependencies().keySet());
+
+                    LinkedHashMap<String, Object> resolvedDependenciesMap = new LinkedHashMap<>();
+                    return Observable.zip(dependencyNames, resolvedDependencies, (name, instance) -> {
+                        resolvedDependenciesMap.put(name, instance);
+                        return resolvedDependenciesMap;
+                    })
+                            .last()
+                            .flatMap(deps -> fromCallable(() -> {
+                                Object instance = resolver.onResolved(deps);
+                                AsyncSubject<Object> instanceLauncher = SERVICE_CACHE.computeIfAbsent(resolver.getConcreteClass(), key -> AsyncSubject.create());
+                                instanceLauncher.onNext(instance);
+                                instanceLauncher.onCompleted();
+                                INSTANCE_CACHE.put(resolver.getConcreteClass(), instance);
+                                return instance;
+                            }));
+                });
+    }
+
+    private Observable instantiateEmptyDeps() {
+        return from(resolvers)
                 .filter(resolver -> resolver.dependencies().isEmpty())
                 .flatMap(resolver -> fromCallable(() -> {
                             AsyncSubject<Object> instance = AsyncSubject.create();
@@ -41,31 +70,7 @@ public class XSContainer {
                             }
                             return resolver;
                         }
-                ))
-        .subscribe();
-
-        from(resolvers)
-                .filter(resolver -> !resolver.dependencies().isEmpty())
-                .flatMap(resolver -> {
-                    Observable<Object> resolvedDependencies = from(resolver.dependencies().values()).flatMap(SERVICE_CACHE::get);
-                    Observable<String> dependencyNames = from(resolver.dependencies().keySet());
-
-                    LinkedHashMap<String, Object> resolvedDependenciesMap = new LinkedHashMap<>();
-                    return Observable.zip(dependencyNames, resolvedDependencies, (name, instance) -> {
-                                resolvedDependenciesMap.put(name, instance);
-                                return resolvedDependenciesMap;
-                            })
-                            .last()
-                            .flatMap(deps -> fromCallable(() -> {
-                                Object instance = resolver.onResolved(deps);
-                                AsyncSubject<Object> instanceLauncher = SERVICE_CACHE.computeIfAbsent(resolver.getConcreteClass(), key -> AsyncSubject.create());
-                                instanceLauncher.onNext(instance);
-                                instanceLauncher.onCompleted();
-                                INSTANCE_CACHE.put(resolver.getConcreteClass(), instance);
-                                return instance;
-                            }));
-                })
-                .subscribe();
+                ));
     }
 
     @SuppressWarnings("unchecked")

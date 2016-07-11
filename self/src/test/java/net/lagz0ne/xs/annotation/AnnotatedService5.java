@@ -1,6 +1,6 @@
 package net.lagz0ne.xs.annotation;
 
 @Service
-public class AnnotatedService2 {
+public class AnnotatedService5 {
 
 }
